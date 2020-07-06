@@ -1,0 +1,14 @@
+D:\C#\NewsAPI\NewsAPI.Business\bin\Debug\netcoreapp3.1\NewsAPI.Business.deps.json
+D:\C#\NewsAPI\NewsAPI.Business\bin\Debug\netcoreapp3.1\NewsAPI.Business.dll
+D:\C#\NewsAPI\NewsAPI.Business\bin\Debug\netcoreapp3.1\NewsAPI.Business.pdb
+D:\C#\NewsAPI\NewsAPI.Business\bin\Debug\netcoreapp3.1\NewsAPI.Contracts.dll
+D:\C#\NewsAPI\NewsAPI.Business\bin\Debug\netcoreapp3.1\NewsAPI.Data.dll
+D:\C#\NewsAPI\NewsAPI.Business\bin\Debug\netcoreapp3.1\NewsAPI.Contracts.pdb
+D:\C#\NewsAPI\NewsAPI.Business\bin\Debug\netcoreapp3.1\NewsAPI.Data.pdb
+D:\C#\NewsAPI\NewsAPI.Business\obj\Debug\netcoreapp3.1\NewsAPI.Business.csprojAssemblyReference.cache
+D:\C#\NewsAPI\NewsAPI.Business\obj\Debug\netcoreapp3.1\NewsAPI.Business.AssemblyInfoInputs.cache
+D:\C#\NewsAPI\NewsAPI.Business\obj\Debug\netcoreapp3.1\NewsAPI.Business.AssemblyInfo.cs
+D:\C#\NewsAPI\NewsAPI.Business\obj\Debug\netcoreapp3.1\NewsAPI.Business.csproj.CopyComplete
+D:\C#\NewsAPI\NewsAPI.Business\obj\Debug\netcoreapp3.1\NewsAPI.Business.dll
+D:\C#\NewsAPI\NewsAPI.Business\obj\Debug\netcoreapp3.1\NewsAPI.Business.pdb
+D:\C#\NewsAPI\NewsAPI.Business\obj\Debug\netcoreapp3.1\NewsAPI.Business.csproj.CoreCompileInputs.cache

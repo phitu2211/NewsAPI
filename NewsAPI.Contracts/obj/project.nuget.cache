@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "nrvtEFxfmqUAMlGiJXMM2p22EciJ/tic00X0wnAj76o9TFL4c0qKvLJJbOjAPZh377E8js/3X8XV6eOBoLr5pg==",
+  "success": true,
+  "projectFilePath": "D:\\C#\\NewsAPI\\NewsAPI.Contracts\\NewsAPI.Contracts.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\phitu\\.nuget\\packages\\elasticsearch.net\\7.8.0\\elasticsearch.net.7.8.0.nupkg.sha512",
+    "C:\\Users\\phitu\\.nuget\\packages\\microsoft.csharp\\4.6.0\\microsoft.csharp.4.6.0.nupkg.sha512",
+    "C:\\Users\\phitu\\.nuget\\packages\\nest\\7.8.0\\nest.7.8.0.nupkg.sha512",
+    "C:\\Users\\phitu\\.nuget\\packages\\system.buffers\\4.5.0\\system.buffers.4.5.0.nupkg.sha512",
+    "C:\\Users\\phitu\\.nuget\\packages\\system.diagnostics.diagnosticsource\\4.5.1\\system.diagnostics.diagnosticsource.4.5.1.nupkg.sha512"
+  ],
+  "logs": []
+}
