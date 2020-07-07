@@ -149,7 +149,6 @@ namespace NewsAPI.Business.V1
         public async Task<PaginatedList<MenuResponse>> GetByFilterAsync(MenuQueryFilter filter)
         {
             var data = _newsContext.Menus.Where(x => x.ParentId == null);
-
             var menuRes = new List<MenuResponse>();
 
             foreach (var menu in data)

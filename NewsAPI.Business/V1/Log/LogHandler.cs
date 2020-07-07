@@ -28,7 +28,13 @@ namespace NewsAPI.Business.V1
         /// <returns></returns>
         public async Task<PaginatedList<LogModel>> GetLogByFilterAsync(LogQueryFilter filter)
         {
-            var dataResponse = (await _elasticClient.SearchAsync<LogModel>(s => s.MatchAll())).Documents;
+            var dataResponse = (await _elasticClient.SearchAsync<LogModel>(s => s.MatchAll()))
+                .Hits.Select(x => new LogModel 
+                { 
+                    Id = x.Id, 
+                    Level = x.Source.Level,
+                    Message = x.Source.Message 
+                }).ToList();
 
             if (!string.IsNullOrEmpty(filter.Level))
                 dataResponse = dataResponse.Where(x => x.Level.Equals(filter.Level)).ToList();
@@ -47,7 +53,7 @@ namespace NewsAPI.Business.V1
         /// </summary>
         /// <param name="logId"></param>
         /// <returns></returns>
-        public async Task<Response<LogModel>> GetLogByIdAsync(Guid logId)
+        public async Task<Response<LogModel>> GetLogByIdAsync(string logId)
         {
             var res = await _elasticClient.GetAsync<LogModel>(logId);
 

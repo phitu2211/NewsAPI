@@ -8,6 +8,6 @@ namespace NewsAPI.Business.V1
     public interface ILogHandler
     {
         Task<PaginatedList<LogModel>> GetLogByFilterAsync(LogQueryFilter filter);
-        Task<Response<LogModel>> GetLogByIdAsync(Guid logId);
+        Task<Response<LogModel>> GetLogByIdAsync(string logId);
     }
 }

@@ -6,9 +6,13 @@ using NewsAPI.Contracts.V1.Model;
 using Newtonsoft.Json;
 using NewsAPI.Business.V1;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace NewsAPI.Controllers.V1
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Produces("application/json")]
     [ApiController]
     public class MenuController : ControllerBase
     {

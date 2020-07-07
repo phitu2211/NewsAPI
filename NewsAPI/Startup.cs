@@ -13,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NewsAPI.Installers;
-using NewsAPI.Options;
+using NewsAPI.Contracts.Options;
 
 namespace NewsAPI
 {
@@ -44,6 +44,7 @@ namespace NewsAPI
                 app.UseHsts();
             }
 
+            
             var swaggerOptions = new SwaggerOptions();
             Configuration.GetSection(nameof(SwaggerOptions)).Bind(swaggerOptions);
 
@@ -56,9 +57,10 @@ namespace NewsAPI
             {
                 option.SwaggerEndpoint(swaggerOptions.UiEndpoint, swaggerOptions.Description);
             });
+            app.UseCors("AllowOrigin");
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+			app.UseAuthentication();
 
             app.UseMvc();
         }

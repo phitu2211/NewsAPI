@@ -14,26 +14,21 @@ namespace NewsAPI.Installers
     {
         public void InstallerServices(IServiceCollection services, IConfiguration configuration)
         {
-            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIROMENT");
+			var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIROMENT")}.json", optional: true)
-                .Build();
-
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .Enrich.WithExceptionDetails()
-                .Enrich.WithMachineName()
-                .WriteTo.Debug()
-                .WriteTo.Console()
-                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(config["ElasticSearchConfiguration:Uri"]))
-                    {
-                    AutoRegisterTemplate = true,
-                    })
-                .Enrich.WithProperty("Enviroment", env)
-                .ReadFrom.Configuration(config)
-                .CreateLogger();
-        }
+			Serilog.Log.Logger = new LoggerConfiguration()
+				.Enrich.FromLogContext()
+				.Enrich.WithMachineName()
+				.WriteTo.Debug()
+				.WriteTo.Console()
+				.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(configuration["ElasticSearchConfiguration:Uri"]))
+				{
+					AutoRegisterTemplate = true,
+					IndexFormat = configuration["ElasticSearchConfiguration:DefaultIndex"]
+				})
+				.Enrich.WithProperty("Environment", environment)
+				.ReadFrom.Configuration(configuration)
+				.CreateLogger();
+		}
     }
 }

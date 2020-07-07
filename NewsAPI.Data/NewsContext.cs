@@ -20,5 +20,6 @@ namespace NewsAPI.Data
         public DbSet<News> News { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategoryNews> CategoryNews { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

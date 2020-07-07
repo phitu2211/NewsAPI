@@ -9,7 +9,7 @@ namespace NewsAPI.Contracts.V1.Model
     public class LogModel
     {
         [Text(Name = "_id")]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         [Text(Name = "level")]
         public string Level { get; set; }
         [Text(Name = "message")]

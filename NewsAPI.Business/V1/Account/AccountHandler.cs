@@ -1,13 +1,19 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using NewsAPI.Contracts.Options;
 using NewsAPI.Contracts.V1;
 using NewsAPI.Contracts.V1.Helper;
 using NewsAPI.Contracts.V1.Model;
+using NewsAPI.Data;
 using NewsAPI.Data.Context;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace NewsAPI.Business.V1
@@ -21,11 +27,16 @@ namespace NewsAPI.Business.V1
         private readonly IUserValidator<AppUser> _userValidator;
         private readonly RoleManager<AppRole> _roleManager;
         private readonly ILogger<AccountHandler> _logger;
+        private readonly JwtSettings _jwtSettings;
+        private readonly NewsContext _newsContext;
 
         public AccountHandler(UserManager<AppUser> userManager, IPasswordHasher<AppUser> passwordHasher,
             IPasswordValidator<AppUser> passwordValidator, IUserValidator<AppUser> userValidator,
-            RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, ILogger<AccountHandler> logger)
+            RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, ILogger<AccountHandler> logger,
+            JwtSettings jwtSettings, NewsContext newsContext)
         {
+            _newsContext = newsContext;
+            _jwtSettings = jwtSettings;
             _logger = logger;
             _signInManager = signInManager;
             _roleManager = roleManager;
@@ -41,7 +52,7 @@ namespace NewsAPI.Business.V1
         /// </summary>
         /// <param name="request"></param>
         /// <returns>Thông tin tài khoản</returns>
-        public async Task<Response<AccountResponse>> RegisterAsync(AccountRegistrationRequest request)
+        public async Task<Response<AuthenticationResult>> RegisterAsync(AccountRegistrationRequest request)
         {
             if (request.Role.Count == 0)
                 request.Role.Add(Constant.ROLE_USER);
@@ -49,7 +60,7 @@ namespace NewsAPI.Business.V1
             if (String.IsNullOrEmpty(request.Password))
             {
                 _logger.LogError(Constant.PASS_NULL);
-                return new Response<AccountResponse>(Constant.STATUS_ERROR, new List<string> { Constant.PASS_NULL });
+                return new Response<AuthenticationResult>(Constant.STATUS_ERROR, new List<string> { Constant.PASS_NULL });
             }
 
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
@@ -57,7 +68,7 @@ namespace NewsAPI.Business.V1
             if (existingUser != null)
             {
                 _logger.LogError(Constant.USER_EXIST);
-                return new Response<AccountResponse>
+                return new Response<AuthenticationResult>
                 {
                     Data = null,
                     Message = new List<string> { Constant.USER_EXIST },
@@ -82,23 +93,14 @@ namespace NewsAPI.Business.V1
             if (!createdUser.Succeeded)
             {
                 _logger.LogError("Create User Failed");
-                return new Response<AccountResponse>(Constant.STATUS_ERROR, createdUser.Errors.Select(x => x.Description));
+                return new Response<AuthenticationResult>(Constant.STATUS_ERROR, createdUser.Errors.Select(x => x.Description));
             }
             await _userManager.AddToRolesAsync(newUser, request.Role);
 
-            var dataResponse = new AccountResponse
-            {
-                Id = newUser.Id,
-                Address = newUser.Address,
-                Email = newUser.Email,
-                Role = request.Role,
-                Age = newUser.Age,
-                FirstName = newUser.FirstName,
-                LastName = newUser.LastName
-            };
-
+            var dataResponse = await GenerateAuthenticationResultForUserAsync(newUser);
+           
             _logger.LogInformation("Create account success");
-            return new Response<AccountResponse>(Constant.STATUS_SUCESS, null, dataResponse, 1);
+            return new Response<AuthenticationResult>(Constant.STATUS_SUCESS, null, dataResponse, 1);
         }
 
         /// <summary>
@@ -269,8 +271,6 @@ namespace NewsAPI.Business.V1
         /// <returns>Danh sách tài khoản theo filter</returns>
         public async Task<PaginatedList<AccountResponse>> GetAccountByFilterAsync(AccountQueryFilter filter)
         {
-            _logger.LogInformation("Test log");
-
             var dataResponse = new List<AccountResponse>();
 
             foreach (var user in _userManager.Users)
@@ -314,14 +314,14 @@ namespace NewsAPI.Business.V1
         /// </summary>
         /// <param name="request"></param>
         /// <returns>Thông tin tài khoản đăng nhập</returns>
-        public async Task<Response<AccountResponse>> LoginAsync(AccountLoginRequest request)
+        public async Task<Response<AuthenticationResult>> LoginAsync(AccountLoginRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
 
             if (user == null)
             {
                 _logger.LogError(Constant.USER_NOT_EXIST);
-                return new Response<AccountResponse>(Constant.STATUS_ERROR, new List<string> { Constant.USER_NOT_EXIST });
+                return new Response<AuthenticationResult>(Constant.STATUS_ERROR, new List<string> { Constant.USER_NOT_EXIST });
             }
 
             var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
@@ -329,20 +329,12 @@ namespace NewsAPI.Business.V1
             if (!result.Succeeded)
             {
                 _logger.LogError("Login Failed");
-                return new Response<AccountResponse>(Constant.STATUS_ERROR, new List<string> { "Login Failed" });
+                return new Response<AuthenticationResult>(Constant.STATUS_ERROR, new List<string> { "Login Failed" });
             }
-            var dataResponse = new AccountResponse
-            {
-                Id = user.Id,
-                Address = user.Address,
-                Age = user.Age,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Role = (await _userManager.GetRolesAsync(user)).ToList()
-            };
 
-            return new Response<AccountResponse>(Constant.STATUS_SUCESS, null, dataResponse, 1);
+            var dataResponse = await GenerateAuthenticationResultForUserAsync(user);
+
+            return new Response<AuthenticationResult>(Constant.STATUS_SUCESS, null, dataResponse, 1);
         }
 
         /// <summary>
@@ -384,6 +376,66 @@ namespace NewsAPI.Business.V1
             dataResponse.NonMembers = nonMembers;
 
             return new Response<GetAccountsByRoleIdResponse>(Constant.STATUS_SUCESS, null, dataResponse, 1);
+        }
+
+        private async Task<AuthenticationResult> GenerateAuthenticationResultForUserAsync(AppUser user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
+
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("id", user.Id.ToString())
+            };
+
+            var userClaims = await _userManager.GetClaimsAsync(user);
+
+            claims.AddRange(userClaims);
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            foreach (var userRole in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+                var role = await _roleManager.FindByNameAsync(userRole);
+                if (role == null) continue;
+                var roleClaims = await _roleManager.GetClaimsAsync(role);
+
+                foreach (var roleClaim in roleClaims)
+                {
+                    if (claims.Contains(roleClaim))
+                        continue;
+
+                    claims.Add(roleClaim);
+                }
+            }
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifeTime),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            //var refreshToken = new RefreshToken
+            //{
+            //    JwtId = token.Id,
+            //    UserId = user.Id,
+            //    CreationDate = DateTime.UtcNow,
+            //    ExpiryDate = DateTime.UtcNow.AddMonths(6)
+            //};
+
+            //await _newsContext.RefreshTokens.AddAsync(refreshToken);
+            //await _newsContext.SaveChangesAsync();
+
+            return new AuthenticationResult
+            {
+                Token = tokenHandler.WriteToken(token)
+            };
         }
     }
 }

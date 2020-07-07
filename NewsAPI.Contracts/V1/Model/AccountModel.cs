@@ -60,4 +60,11 @@ namespace NewsAPI.Contracts.V1.Model
         public string Password { get; set; }
         public List<string> Role { get; set; } = new List<string>();
     }
+
+    public class AuthenticationResult
+    {
+        public string Token { get; set; }
+        public IEnumerable<string> Errors { get; set; }
+        public string RefreshToken { get; set; }
+    }
 }

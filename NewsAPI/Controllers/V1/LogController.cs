@@ -5,9 +5,13 @@ using Newtonsoft.Json;
 using NewsAPI.Contracts.V1.Model;
 using System;
 using NewsAPI.Business.V1;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace NewsAPI.Controllers.V1
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Produces("application/json")]
     [ApiController]
     public class LogController : ControllerBase
     {
@@ -27,7 +31,7 @@ namespace NewsAPI.Controllers.V1
         }
 
         [HttpGet(Constant.ApiRoutes.Log.GetLogById)]
-        public async Task<Response<LogModel>> GetLogById(Guid logId)
+        public async Task<Response<LogModel>> GetLogById(string logId)
         {
             return await _logService.GetLogByIdAsync(logId);
         }
