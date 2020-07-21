@@ -38,7 +38,7 @@
             {
                 public const string Register = _base + "/register";
                 public const string Login = _base + "/login";
-                public const string UpdateAccount = _base + "/update/{userId}";
+                public const string UpdateAccount = _base + "/account/{userId}";
                 public const string GetAccountById = _base + "/account/{userId}";
                 public const string GetAccountByFilter = _base + "/accounts";
                 public const string DeleteAccount = _base + "/account/{userId}";

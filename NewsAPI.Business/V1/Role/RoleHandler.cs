@@ -155,10 +155,10 @@ namespace NewsAPI.Business.V1
             }).ToList());
 
             if (!string.IsNullOrEmpty(filter.RoleName))
-                dataResponse = dataResponse.Where(x => x.RoleName == filter.RoleName).ToList();
+                dataResponse = dataResponse.Where(x => x.RoleName.ToLower().Contains(filter.RoleName.ToLower())).ToList();
 
             if (!string.IsNullOrEmpty(filter.Description))
-                dataResponse = dataResponse.Where(x => x.Description.Contains(filter.Description)).ToList();
+                dataResponse = dataResponse.Where(x => x.Description.ToLower().Contains(filter.Description.ToLower())).ToList();
 
             if (!filter.PageSize.HasValue && !filter.PageNumber.HasValue)
                 return await PaginatedList<RoleResponse>.CreateAsync(dataResponse);
@@ -184,6 +184,9 @@ namespace NewsAPI.Business.V1
 
             if (!string.IsNullOrEmpty(request.RoleName))
                 role.Name = request.RoleName;
+            
+            if (!string.IsNullOrEmpty(request.Description))
+                role.Description = request.Description;
 
             var result = await _roleManager.UpdateAsync(role);
 
@@ -228,18 +231,16 @@ namespace NewsAPI.Business.V1
                 var menu = await _newsContext.Menus.FindAsync(item);
                 if(menu != null)
                 {
-                    var menuRole = _newsContext.MenuRoles.Where(x => x.RoleId.Equals(role.Id) && x.MenuId.Equals(menu.Id));
-                    if (menuRole != null && menuRole.Any())
+                    var menuRole = _newsContext.MenuRoles.Where(x => x.RoleId.Equals(role.Id) && x.MenuId.Equals(menu.Id)).ToList();
+                    if (menuRole.Count() == 0)
                     {
-                        _logger.LogError($"Menu already in role '{role.Name}'");
-                        return new Response<RoleResponse>(Constant.STATUS_ERROR, new List<string> { $"Menu already in role '{role.Name}'" });
+                        await _newsContext.MenuRoles.AddAsync(new MenuRole
+                        {
+                            Id = Guid.NewGuid(),
+                            MenuId = menu.Id,
+                            RoleId = role.Id
+                        });
                     }
-                    await _newsContext.MenuRoles.AddAsync(new MenuRole
-                    {
-                        Id = Guid.NewGuid(),
-                        MenuId = menu.Id,
-                        RoleId = role.Id
-                    });
                 }
             }
 
@@ -249,8 +250,9 @@ namespace NewsAPI.Business.V1
                 var menu = await _newsContext.Menus.FindAsync(item);
                 if (menu != null)
                 {
-                    var menuRole = _newsContext.MenuRoles.Where(x => x.RoleId == role.Id && x.MenuId == menu.Id);
-                    _newsContext.MenuRoles.RemoveRange(menuRole);
+                    var menuRole = _newsContext.MenuRoles.Where(x => x.RoleId == role.Id && x.MenuId == menu.Id).ToList(); 
+                    if (menuRole.Count() != 0)
+                        _newsContext.MenuRoles.RemoveRange(menuRole);
                 }
             }
 
@@ -286,7 +288,8 @@ namespace NewsAPI.Business.V1
             foreach (var item in request.AddAccountIds ?? new List<Guid> { })
             {
                 var account = await _userManager.FindByIdAsync(item.ToString());
-                if (account != null)
+                var isInRole = await _userManager.IsInRoleAsync(account, role.Name);
+                if (account != null && !isInRole)
                 {
                     var result = await _userManager.AddToRoleAsync(account, role.Name);
                     if (!result.Succeeded)

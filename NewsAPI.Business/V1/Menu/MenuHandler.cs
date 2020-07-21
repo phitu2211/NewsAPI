@@ -42,7 +42,9 @@ namespace NewsAPI.Business.V1
             var menu = new Menu
             {
                 Id = Guid.NewGuid(),
-                MenuName = request.MenuName
+                MenuName = request.MenuName,
+                Href = request.Href,
+                Icon = request.Icon
             };
 
             if (request.ParentId == null)
@@ -76,6 +78,8 @@ namespace NewsAPI.Business.V1
                 Role = await GetRolesAsync(menu.Id),
                 MenuName = menu.MenuName,
                 ParentId = menu.ParentId,
+                Href = menu.Href,
+                Icon = menu.Icon,
                 SubMenus = null
             };
 
@@ -156,6 +160,8 @@ namespace NewsAPI.Business.V1
                 menuRes.Add(new MenuResponse
                 {
                     Id = menu.Id,
+                    Href = menu.Href,
+                    Icon = menu.Icon,
                     MenuName = menu.MenuName,
                     ParentId = menu.ParentId,
                     SubMenus = await GetSubMenusAsync(menu.Id),
@@ -164,7 +170,7 @@ namespace NewsAPI.Business.V1
             }
 
             if (!string.IsNullOrEmpty(filter.MenuName))
-                menuRes = menuRes.Where(x => x.MenuName == filter.MenuName).ToList();
+                menuRes = menuRes.Where(x => x.MenuName.ToLower().Contains(filter.MenuName.ToLower())).ToList();
 
             if (!filter.PageSize.HasValue && !filter.PageNumber.HasValue)
                 return await PaginatedList<MenuResponse>.CreateAsync(menuRes);
@@ -191,6 +197,8 @@ namespace NewsAPI.Business.V1
             {
                 Id = menu.Id,
                 MenuName = menu.MenuName,
+                Href = menu.Href,
+                Icon = menu.Icon,
                 ParentId = menu.ParentId,
                 Role = await GetRolesAsync(menu.Id),
                 SubMenus = await GetSubMenusAsync(menu.Id)
@@ -218,14 +226,21 @@ namespace NewsAPI.Business.V1
             if (!string.IsNullOrEmpty(request.MenuName))
                 menu.MenuName = request.MenuName;
 
+            if (!string.IsNullOrEmpty(request.Href))
+                menu.Href = request.Href;
+
+            if (!string.IsNullOrEmpty(request.Icon))
+                menu.Icon = request.Icon;
+
             menu.ParentId = request.ParentId ?? null;
 
             //Thêm quyền vào menu
             foreach (var item in request.AddRoles ?? new List<string> { })
             {
                 var role = await _roleManager.FindByNameAsync(item);
-                if (role != null)
-                {
+                var isMenuInRole = IsMenuInRole(menu, role);
+                if (role != null && !isMenuInRole)
+                { 
                     var menuRole = _newsContext.MenuRoles.Where(x => x.MenuId.Equals(menu.Id) && x.RoleId.Equals(role.Id));
                     if (menuRole != null && menuRole.Any())
                     {
@@ -245,7 +260,8 @@ namespace NewsAPI.Business.V1
             foreach (var item in request.RemoveRoles ?? new List<string> { })
             {
                 var role = await _roleManager.FindByNameAsync(item);
-                if (role != null)
+                var isMenuInRole = IsMenuInRole(menu, role);
+                if (role != null && isMenuInRole)
                 {
                     var rm = _newsContext.MenuRoles.Where(x => x.RoleId == role.Id && x.MenuId == menu.Id);
 
@@ -258,6 +274,8 @@ namespace NewsAPI.Business.V1
             var dataResponse = new MenuResponse
             {
                 Id = menu.Id,
+                Href = menu.Href,
+                Icon = menu.Icon,
                 MenuName = menu.MenuName,
                 ParentId = menu.ParentId,
                 SubMenus = await GetSubMenusAsync(menu.Id),
@@ -303,7 +321,6 @@ namespace NewsAPI.Business.V1
             {
                 menuRoles.AddRange(_newsContext.MenuRoles.Where(x => x.RoleId.Equals(roleId)));
             }
-
             if (menuRoles == null || menuRoles.Count() < 1)
             {
                 _logger.LogError("No menu is accessed");
@@ -321,14 +338,30 @@ namespace NewsAPI.Business.V1
                         Id = menu.Id,
                         MenuName = menu.MenuName,
                         ParentId = menu.ParentId,
+                        Href = menu.Href,
+                        Icon = menu.Icon,
                         SubMenus = await GetSubMenusAsync(menu.Id),
                         Role = await GetRolesAsync(menu.Id)
                     });
             }
+            menuResponses = menuResponses.Distinct(new ItemEqualityComparer()).ToList();
 
             return new Response<List<MenuResponse>>(Constant.STATUS_SUCESS, null, menuResponses, menuResponses.Count());
         }
 
+        private class ItemEqualityComparer : IEqualityComparer<MenuResponse>
+        {
+            public bool Equals(MenuResponse x, MenuResponse y)
+            {
+                // Two items are equal if their keys are equal.
+                return x.Id == y.Id;
+            }
+
+            public int GetHashCode(MenuResponse obj)
+            {
+                return obj.Id.GetHashCode();
+            }
+        }
         /// <summary>
         /// Lấy danh sách menu theo id quyền
         /// </summary>
@@ -358,6 +391,8 @@ namespace NewsAPI.Business.V1
                 {
                     Id = item.Id,
                     MenuName = item.MenuName,
+                    Href = item.Href,
+                    Icon = item.Icon,
                     ParentId = item.ParentId,
                     SubMenus = await GetSubMenusAsync(item.Id),
                     Role = await GetRolesAsync(item.Id)
@@ -391,6 +426,8 @@ namespace NewsAPI.Business.V1
                 {
                     Id = x.Id,
                     MenuName = x.MenuName,
+                    Href = x.Href,
+                    Icon = x.Icon,
                     ParentId = x.ParentId,
                     Role = await GetRolesAsync(x.Id),
                     SubMenus = await GetSubMenusAsync(x.Id)
@@ -434,6 +471,8 @@ namespace NewsAPI.Business.V1
                 {
                     Id = item.Id,
                     MenuName = item.MenuName,
+                    Href = item.Href,
+                    Icon = item.Icon,
                     Role = await GetRolesAsync(item.Id),
                     ParentId = item.ParentId,
                     SubMenus = await GetSubMenusAsync(item.Id)

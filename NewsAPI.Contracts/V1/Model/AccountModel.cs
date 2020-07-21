@@ -9,6 +9,7 @@ namespace NewsAPI.Contracts.V1.Model
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string UserName { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
         public int Age { get; set; }
@@ -63,6 +64,7 @@ namespace NewsAPI.Contracts.V1.Model
 
     public class AuthenticationResult
     {
+        public AccountResponse InfoAccount { get; set; }
         public string Token { get; set; }
         public IEnumerable<string> Errors { get; set; }
         public string RefreshToken { get; set; }

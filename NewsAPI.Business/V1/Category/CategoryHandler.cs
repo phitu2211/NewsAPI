@@ -119,9 +119,10 @@ namespace NewsAPI.Business.V1
         /// <returns>Danh sách danh mục theo filter</returns>
         public async Task<PaginatedList<CategoryResponse>> GetCategoryByFilterAsync(CategoryQueryFilter filter)
         {
+            var data = _newsContext.Categories.Where(x => x.ParentId == null);
             var dataResponse = new List<CategoryResponse>();
 
-            foreach (var item in _newsContext.Categories)
+            foreach (var item in data)
             {
                 dataResponse.Add(new CategoryResponse
                 {

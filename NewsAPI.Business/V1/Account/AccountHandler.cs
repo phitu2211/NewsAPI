@@ -159,7 +159,8 @@ namespace NewsAPI.Business.V1
             foreach (var item in request.AddRoles ?? new List<string> { })
             {
                 var role = await _roleManager.FindByNameAsync(item);
-                if (role != null)
+                var isInRole = await _userManager.IsInRoleAsync(await _userManager.FindByIdAsync(userId.ToString()), role.Name);
+                if (role != null && !isInRole)
                 {
                     result = await _userManager.AddToRoleAsync(appUser, role.Name);
                     if (!result.Succeeded)
@@ -174,7 +175,8 @@ namespace NewsAPI.Business.V1
             foreach (var item in request.RemoveRoles ?? new List<string> { })
             {
                 var role = await _roleManager.FindByNameAsync(item);
-                if (role != null)
+                var isInRole = await _userManager.IsInRoleAsync(await _userManager.FindByIdAsync(userId.ToString()), role.Name);
+                if (role != null && isInRole)
                 {
                     result = await _userManager.RemoveFromRoleAsync(appUser, role.Name);
                     if (!result.Succeeded)
@@ -193,6 +195,7 @@ namespace NewsAPI.Business.V1
                 Address = appUser.Address,
                 Age = appUser.Age,
                 Email = appUser.Email,
+                UserName = appUser.UserName,
                 FirstName = appUser.FirstName,
                 LastName = appUser.LastName,
                 Role = (await _userManager.GetRolesAsync(appUser)).ToList()
@@ -255,6 +258,7 @@ namespace NewsAPI.Business.V1
                 Age = user.Age,
                 Email = user.Email,
                 LastName = user.LastName,
+                UserName = user.UserName,
                 FirstName = user.FirstName,
                 Role = (await _userManager.GetRolesAsync(user)).ToList()
             };
@@ -280,6 +284,7 @@ namespace NewsAPI.Business.V1
                     Id = user.Id,
                     Address = user.Address,
                     Age = user.Age,
+                    UserName = user.UserName,
                     Email = user.Email,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
@@ -288,16 +293,16 @@ namespace NewsAPI.Business.V1
             }
 
             if (!string.IsNullOrEmpty(filter.Address))
-                dataResponse = dataResponse.Where(x => x.Address.Contains(filter.Address)).ToList();
+                dataResponse = dataResponse.Where(x => x.Address.ToLower().Contains(filter.Address.ToLower())).ToList();
 
             if (!string.IsNullOrEmpty(filter.Email))
-                dataResponse = dataResponse.Where(x => x.Email.Equals(filter.Email)).ToList();
+                dataResponse = dataResponse.Where(x => x.Email.ToLower().Contains(filter.Email.ToLower())).ToList();
 
             if (!string.IsNullOrEmpty(filter.FirstName))
-                dataResponse = dataResponse.Where(x => x.FirstName.Contains(filter.FirstName)).ToList();
+                dataResponse = dataResponse.Where(x => x.FirstName.ToLower().Contains(filter.FirstName.ToLower())).ToList();
 
             if (!string.IsNullOrEmpty(filter.LastName))
-                dataResponse = dataResponse.Where(x => x.LastName.Contains(filter.LastName)).ToList();
+                dataResponse = dataResponse.Where(x => x.LastName.ToLower().Contains(filter.LastName.ToLower())).ToList();
 
             if (filter.Age > 0)
                 dataResponse = dataResponse.Where(x => x.Age.Equals(filter.Age)).ToList();
@@ -366,6 +371,7 @@ namespace NewsAPI.Business.V1
                     Id = user.Id,
                     Address = user.Address,
                     Age = user.Age,
+                    UserName = user.UserName,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Role = (await _userManager.GetRolesAsync(user)).ToList()
@@ -434,6 +440,17 @@ namespace NewsAPI.Business.V1
 
             return new AuthenticationResult
             {
+                InfoAccount = new AccountResponse
+                {
+                    Id = user.Id,
+                    Address = user.Address,
+                    Age = user.Age,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = (await _userManager.GetRolesAsync(user)).ToList(),
+                    UserName = user.UserName
+                },
                 Token = tokenHandler.WriteToken(token)
             };
         }

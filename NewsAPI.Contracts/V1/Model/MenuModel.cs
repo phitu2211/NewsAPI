@@ -6,6 +6,8 @@ namespace NewsAPI.Contracts.V1.Model
     public class MenuModel
     {
         public string MenuName { get; set; }
+        public string Href { get; set; }
+        public string Icon { get; set; }
     }
 
     public class GetMenusByRoleNameRequest

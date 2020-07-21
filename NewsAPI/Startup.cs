@@ -44,7 +44,8 @@ namespace NewsAPI
                 app.UseHsts();
             }
 
-            
+			app.UseCors("AllowOrigin");
+
             var swaggerOptions = new SwaggerOptions();
             Configuration.GetSection(nameof(SwaggerOptions)).Bind(swaggerOptions);
 

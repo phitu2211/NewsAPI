@@ -5,7 +5,6 @@ using NewsAPI.Contracts.V1.Helper;
 using NewsAPI.Contracts.V1.Model;
 using Newtonsoft.Json;
 using NewsAPI.Business.V1;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 

@@ -34,6 +34,11 @@ namespace NewsAPI.Contracts.V1.Model
         //public string CategoryName { get; set; }
         public int? PageSize { get; set; }
         public int? PageNumber { get; set; }
+        public DateTime CreateFromDate { get; set; }
+        public DateTime CreateToDate { get; set; }
+        public DateTime UpdateFromDate { get; set; }
+        public DateTime UpdateToDate { get; set; }
+        public List<Guid> CategoryIds { get; set; }
         public NewsQueryFilter()
         {
             PageNumber = 1;

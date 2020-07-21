@@ -212,20 +212,17 @@ namespace NewsAPI.Business.V1
                 var category = await _newsContext.Categories.FindAsync(categoryId);
                 if (category != null)
                 {
-                    var categoryNews = _newsContext.CategoryNews.Where(x => x.CategoryId.Equals(category.Id) && x.NewsId.Equals(news.Id));
+                    var categoryNews = _newsContext.CategoryNews.Where(x => x.CategoryId.Equals(category.Id) && x.NewsId.Equals(news.Id)).ToList();
 
-                    if (categoryNews != null && categoryNews.Any())
+                    if (categoryNews.Count() <= 0)
                     {
-                        _logger.LogError($"Category already in news");
-                        return new Response<NewsResponse>(Constant.STATUS_ERROR, new List<string> { $"Category already in news" });
+                        await _newsContext.CategoryNews.AddAsync(new CategoryNews
+                        {
+                            Id = Guid.NewGuid(),
+                            CategoryId = category.Id,
+                            NewsId = news.Id
+                        });
                     }
-
-                    await _newsContext.CategoryNews.AddAsync(new CategoryNews
-                    {
-                        Id = Guid.NewGuid(),
-                        CategoryId = category.Id,
-                        NewsId = news.Id
-                    });
                 }
             }
 
