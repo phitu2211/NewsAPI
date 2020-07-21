@@ -250,7 +250,7 @@ namespace NewsAPI.Business.V1
                 Categories = await GetCategoryModels(news.Id)
             };
 
-            if (result > 0)
+            if (result >= 0)
             {
                 _logger.LogInformation("Update news sucess");
                 return new Response<NewsResponse>(Constant.STATUS_SUCESS, null, dataResponse, 1);
