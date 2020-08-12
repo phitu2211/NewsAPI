@@ -2,11 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using NewsAPI.Contracts.Options;
-using NewsAPI.Contracts.V1.Model;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NewsAPI.Extensions
 {

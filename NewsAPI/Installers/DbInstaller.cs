@@ -2,11 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NewsAPI.Business.V1;
 using NewsAPI.Data;
 using NewsAPI.Data.Context;
 using NewsAPI.Extensions;
-using System;
-using NewsAPI.Business.V1;
 
 namespace NewsAPI.Installers
 {

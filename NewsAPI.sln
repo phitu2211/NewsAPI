@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsAPI.Contracts", "NewsAP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsAPI.Business", "NewsAPI.Business\NewsAPI.Business.csproj", "{9CBF86BA-CA46-4EBF-A09D-F7B60A036A12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsAPI.XUnitTest", "NewsAPI.XUnitTest\NewsAPI.XUnitTest.csproj", "{9B045A5F-9835-4BD0-92C5-15A14E1EB3C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsAPI.XUnitTest", "NewsAPI.XUnitTest\NewsAPI.XUnitTest.csproj", "{9B045A5F-9835-4BD0-92C5-15A14E1EB3C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

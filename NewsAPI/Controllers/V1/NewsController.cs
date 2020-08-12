@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NewsAPI.Business.V1;
 using NewsAPI.Contracts.V1.Helper;
 using NewsAPI.Contracts.V1.Model;
 using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
 
 namespace NewsAPI.Controllers.V1
 {

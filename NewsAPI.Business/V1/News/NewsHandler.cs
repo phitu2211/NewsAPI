@@ -36,12 +36,13 @@ namespace NewsAPI.Business.V1
                 return new Response<NewsResponse>(Constant.STATUS_ERROR, new List<string> { "Title or content is not null" });
             }
             var news = new News
-            { 
+            {
                 Id = Guid.NewGuid(),
                 Title = request.Title,
                 Content = request.Content,
                 CreateTime = DateTime.UtcNow.Date,
-                UpdateTime = DateTime.UtcNow.Date
+                UpdateTime = DateTime.UtcNow.Date,
+                UrlImage = request.UrlImage
             };
 
             var categoryNews = new List<CategoryNews>();
@@ -76,7 +77,8 @@ namespace NewsAPI.Business.V1
                 Content = news.Content,
                 CreateTime = news.CreateTime,
                 UpdateTime = news.UpdateTime,
-                Categories = await GetCategoryModels(news.Id)
+                Categories = await GetCategoryModels(news.Id),
+                UrlImage = news.UrlImage
             };
 
             if (result > 0)
@@ -141,8 +143,34 @@ namespace NewsAPI.Business.V1
                     Content = item.Content,
                     CreateTime = item.CreateTime,
                     UpdateTime = item.UpdateTime,
-                    Categories = await GetCategoryModels(item.Id)
+                    Categories = await GetCategoryModels(item.Id),
+                    UrlImage = item.UrlImage
                 });
+            }
+
+            if (filter.CategoryIds != null && filter.CategoryIds.Count() > 0)
+            {
+                var filterMenuByCategory = new List<Guid>();
+                foreach (var id in filter.CategoryIds)
+                {
+                    var newsCate = _newsContext.CategoryNews.Where(x => x.CategoryId.Equals(id)).Select(y => y.NewsId);
+                    filterMenuByCategory.AddRange(newsCate);
+                }
+
+                var listIndexMenuRemove = new List<int>();
+                int i = 0;
+                foreach (var item in dataResponse)
+                {
+                    if (!filterMenuByCategory.Exists(x => item.Id.Equals(x)))
+                    {
+                        listIndexMenuRemove.Add(i);
+                    };
+                    i++;
+                }
+                for (int j = listIndexMenuRemove.Count(); j >= 0; j--)
+                {
+                    dataResponse.RemoveAt(j);
+                }
             }
 
             if (!string.IsNullOrEmpty(filter.Title))
@@ -179,7 +207,8 @@ namespace NewsAPI.Business.V1
                 Content = news.Content,
                 CreateTime = news.CreateTime,
                 UpdateTime = news.UpdateTime,
-                Categories = await GetCategoryModels(news.Id)
+                Categories = await GetCategoryModels(news.Id),
+                UrlImage = news.UrlImage
             };
 
             return new Response<NewsResponse>(Constant.STATUS_SUCESS, null, dataResponse, 1);
@@ -205,6 +234,9 @@ namespace NewsAPI.Business.V1
 
             if (!string.IsNullOrEmpty(request.Content))
                 news.Content = request.Content;
+
+            if (!string.IsNullOrEmpty(request.UrlImage))
+                news.UrlImage = request.UrlImage;
 
             //thêm danh mục vào tin tức
             foreach (var categoryId in request.AddCategoryIds ?? new List<Guid> { })
@@ -247,7 +279,8 @@ namespace NewsAPI.Business.V1
                 Content = news.Content,
                 CreateTime = news.CreateTime,
                 UpdateTime = news.UpdateTime,
-                Categories = await GetCategoryModels(news.Id)
+                Categories = await GetCategoryModels(news.Id),
+                UrlImage = news.UrlImage
             };
 
             if (result >= 0)
@@ -294,7 +327,8 @@ namespace NewsAPI.Business.V1
                     Content = item.Content,
                     CreateTime = item.CreateTime,
                     UpdateTime = item.UpdateTime,
-                    Categories = await GetCategoryModels(item.Id)
+                    Categories = await GetCategoryModels(item.Id),
+                    UrlImage = item.UrlImage
                 });
             }
 

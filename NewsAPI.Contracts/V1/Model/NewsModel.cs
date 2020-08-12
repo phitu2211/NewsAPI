@@ -8,6 +8,7 @@ namespace NewsAPI.Contracts.V1.Model
     {
         public string Title { get; set; }
         public string Content { get; set; }
+        public string UrlImage { get; set; }
     }
 
     public class NewsResponse : NewsModel

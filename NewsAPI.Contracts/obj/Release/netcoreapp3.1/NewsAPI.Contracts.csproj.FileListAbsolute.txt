@@ -1,0 +1,9 @@
+D:\C#\NewsAPI\NewsAPI.Contracts\bin\Release\netcoreapp3.1\NewsAPI.Contracts.deps.json
+D:\C#\NewsAPI\NewsAPI.Contracts\bin\Release\netcoreapp3.1\NewsAPI.Contracts.dll
+D:\C#\NewsAPI\NewsAPI.Contracts\bin\Release\netcoreapp3.1\NewsAPI.Contracts.pdb
+D:\C#\NewsAPI\NewsAPI.Contracts\obj\Release\netcoreapp3.1\NewsAPI.Contracts.csprojAssemblyReference.cache
+D:\C#\NewsAPI\NewsAPI.Contracts\obj\Release\netcoreapp3.1\NewsAPI.Contracts.csproj.CoreCompileInputs.cache
+D:\C#\NewsAPI\NewsAPI.Contracts\obj\Release\netcoreapp3.1\NewsAPI.Contracts.AssemblyInfoInputs.cache
+D:\C#\NewsAPI\NewsAPI.Contracts\obj\Release\netcoreapp3.1\NewsAPI.Contracts.AssemblyInfo.cs
+D:\C#\NewsAPI\NewsAPI.Contracts\obj\Release\netcoreapp3.1\NewsAPI.Contracts.dll
+D:\C#\NewsAPI\NewsAPI.Contracts\obj\Release\netcoreapp3.1\NewsAPI.Contracts.pdb

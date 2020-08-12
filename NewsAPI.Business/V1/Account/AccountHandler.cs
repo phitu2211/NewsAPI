@@ -275,9 +275,10 @@ namespace NewsAPI.Business.V1
         /// <returns>Danh sách tài khoản theo filter</returns>
         public async Task<PaginatedList<AccountResponse>> GetAccountByFilterAsync(AccountQueryFilter filter)
         {
+            var data = _userManager.Users.ToList();
             var dataResponse = new List<AccountResponse>();
 
-            foreach (var user in _userManager.Users)
+            foreach (var user in data)
             {
                 dataResponse.Add(new AccountResponse
                 {

@@ -305,21 +305,23 @@ namespace NewsAPI.Business.V1
                 _logger.LogError("No role input");
                 return new Response<List<MenuResponse>>(Constant.STATUS_ERROR, new List<string> { "No role input" });
             }
-
+            var listRole = new List<AppRole>();
             var listRoleId = new List<Guid>();
 
             foreach (var item in request.RoleNames)
             {
-                var roleId = (await _roleManager.FindByNameAsync(item)).Id;
-                if (roleId != null)
-                    listRoleId.Add(roleId);
+                var role = await _roleManager.FindByNameAsync(item);
+                if (role != null)
+                    listRole.Add(role);
             }
 
             var menuRoles = new List<MenuRole>();
 
-            foreach (var roleId in listRoleId)
+            foreach (var role in listRole)
             {
-                menuRoles.AddRange(_newsContext.MenuRoles.Where(x => x.RoleId.Equals(roleId)));
+                var roles = _newsContext.MenuRoles.Where(x => x.RoleId.Equals(role.Id));
+
+                menuRoles.AddRange(roles);
             }
             if (menuRoles == null || menuRoles.Count() < 1)
             {
@@ -331,8 +333,29 @@ namespace NewsAPI.Business.V1
             foreach (var item in menuRoles)
             {
                 var menu = await _newsContext.Menus.FindAsync(item.MenuId);
-
-                if(menu.ParentId == null)
+                if (menu.ParentId == null)
+                {
+                    var subMenus = await GetSubMenusAsync(menu.Id);
+                    int i = 0;
+                    var listSubRemove = new List<int>();
+                    foreach (var sub in subMenus ?? new List<MenuResponse> { })
+                    {
+                        bool hasRole = false;
+                        foreach (var role in listRole)
+                        {
+                            if (IsMenuInRole(new Menu {Id = sub.Id }, role))
+                            {
+                                hasRole = true;
+                            }
+                        }
+                        if (!hasRole)
+                            listSubRemove.Add(i);
+                        i++;
+                    }
+                    foreach (var index in listSubRemove)
+                    {
+                        subMenus.RemoveAt(index);
+                    }
                     menuResponses.Add(new MenuResponse
                     {
                         Id = menu.Id,
@@ -340,9 +363,10 @@ namespace NewsAPI.Business.V1
                         ParentId = menu.ParentId,
                         Href = menu.Href,
                         Icon = menu.Icon,
-                        SubMenus = await GetSubMenusAsync(menu.Id),
+                        SubMenus = subMenus,
                         Role = await GetRolesAsync(menu.Id)
                     });
+                }
             }
             menuResponses = menuResponses.Distinct(new ItemEqualityComparer()).ToList();
 
@@ -459,7 +483,7 @@ namespace NewsAPI.Business.V1
         private async Task<List<MenuResponse>> GetSubMenusAsync(Guid menuId)
         {
             var subMenusInfo = await _newsContext.Menus.Where(x => x.ParentId == menuId).ToListAsync();
-
+            
             if (subMenusInfo.Count < 1 || subMenusInfo == null)
                 return null;
 

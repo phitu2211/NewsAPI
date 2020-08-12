@@ -1,9 +1,9 @@
 D:\C#\NewsAPI\NewsAPI.Data\bin\Debug\netcoreapp3.1\NewsAPI.Data.deps.json
 D:\C#\NewsAPI\NewsAPI.Data\bin\Debug\netcoreapp3.1\NewsAPI.Data.dll
 D:\C#\NewsAPI\NewsAPI.Data\bin\Debug\netcoreapp3.1\NewsAPI.Data.pdb
+D:\C#\NewsAPI\NewsAPI.Data\obj\Debug\netcoreapp3.1\NewsAPI.Data.csprojAssemblyReference.cache
 D:\C#\NewsAPI\NewsAPI.Data\obj\Debug\netcoreapp3.1\NewsAPI.Data.csproj.CoreCompileInputs.cache
 D:\C#\NewsAPI\NewsAPI.Data\obj\Debug\netcoreapp3.1\NewsAPI.Data.AssemblyInfoInputs.cache
 D:\C#\NewsAPI\NewsAPI.Data\obj\Debug\netcoreapp3.1\NewsAPI.Data.AssemblyInfo.cs
 D:\C#\NewsAPI\NewsAPI.Data\obj\Debug\netcoreapp3.1\NewsAPI.Data.dll
 D:\C#\NewsAPI\NewsAPI.Data\obj\Debug\netcoreapp3.1\NewsAPI.Data.pdb
-D:\C#\NewsAPI\NewsAPI.Data\obj\Debug\netcoreapp3.1\NewsAPI.Data.csprojAssemblyReference.cache

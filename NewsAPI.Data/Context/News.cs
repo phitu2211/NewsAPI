@@ -13,5 +13,6 @@ namespace NewsAPI.Data.Context
         public string Content { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime? UpdateTime { get; set; }
+        public String UrlImage { get; set; }
     }
 }
